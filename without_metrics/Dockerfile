@@ -1,5 +1,5 @@
 FROM ubuntu
-ADD example /
+ADD isEven /
 ENV Num 10
 EXPOSE 5565
-ENTRYPOINT ["./example"]
+ENTRYPOINT ["./isEven"]

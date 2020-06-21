@@ -18,25 +18,25 @@ func main(){
 func index(w http.ResponseWriter, r *http.Request) {
 	num:=os.Getenv("Num")
 	if num==""{
-		Fibonacci(10)
-		_,err:=w.Write([]byte("there is no env Num. Computation successed\n"))
+		isEven(2)
+		_,err:=w.Write([]byte("there is no env Num. Judge whether 2 is even successed\n"))
 		if err!=nil{
 			log.Println("err:"+err.Error()+" No\n")
 		}
 	}else{
 		numInt,_:=strconv.Atoi(num)
-		Fibonacci(numInt)
-		_,err:=w.Write([]byte("there is env Num. Computation successed\n"))
+		isEven(numInt)
+		_,err:=w.Write([]byte("there is env Num. Judge whether num is even successed\n"))
 		if err!=nil{
 			log.Println("err:"+err.Error()+" Yes\n")
 		}
 	}
 }
 
-func Fibonacci(n int)int{
-	if n<=2{
-		return 1
+func isEven(n int)bool{
+	if n%2==0{
+		return true
 	}else{
-		return Fibonacci(n-1)+Fibonacci(n-2)
+		return false
 	}
 }

@@ -2,6 +2,7 @@ package metrics
 
 import (
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/shirou/gopsutil/cpu"
 	"time"
 )
 
@@ -20,6 +21,13 @@ var (
 			Buckets:   []float64{0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1.0, 2.0, 5.0, 10.0, 20.0, 30.0, 60.0, 120.0, 300.0},
 		}, []string{},
 	)
+
+	//增加一项指标 cpu use ratio
+	CpuUseRatio = prometheus.NewGauge(
+		prometheus.GaugeOpts{
+			Name:      "cpu_use_ratio",
+			Help:      "Current cpu use ratio.",
+	})
 )
 
 // AdmissionLatency measures latency / execution time of Admission Control execution
@@ -32,6 +40,7 @@ type RequestLatency struct {
 func Register() {
 	prometheus.MustRegister(requestCount)
 	prometheus.MustRegister(requestLatency)
+	prometheus.MustRegister(CpuUseRatio)
 }
 
 
@@ -52,4 +61,10 @@ func (t *RequestLatency) Observe() {
 // RequestIncrease increases the counter of request handled by this service
 func RequestIncrease() {
 	requestCount.WithLabelValues().Add(1)
+}
+
+// 调用GetCpuUseRatio获取当前cpu使用率
+func GetCpuUseRatio(){
+	cpuRatio,_ := cpu.Percent(time.Second, false)
+	CpuUseRatio.Set(cpuRatio[0])
 }
