@@ -1,26 +1,31 @@
-# 云计算实验课实例
-
-【注】本示例使用Golang语言，演示本实验的基本代码逻辑
-
-实验共分为6个小节，参见：https://www.yuque.com/docs/share/9b25593b-2979-452a-a723-b04cf00d57c4?#
-````
-├── Dockerfile                   制作镜像所使用
-├── README
-├── deploy                       部署资源对象时使用的配置文件
-│   ├── deployment.yaml          云服务的Deployment配置文件
-│   ├── metrics_service.yaml     
-│   ├── prometheus.config.yml    prometheus抓取目标配置文件
-│   ├── prometheus.deploy.yml    prometheus部署所使用Deployment
-│   ├── prometheus.rbac.yml      prometheus权限配置文件
-│   └── service.yaml
-├── go.mod                       依赖管理
-├── go.sum                       依赖管理
-├── metrics                      Exporter
-│   └── metrics.go
-├── metrics_version              第6小节参考本目录
-│   └── main.go
-└── without_metrics              除5，6小节外参考本目录
-    └── main.go
-
-
-something added
+# example
+### 应用程序
+根据示例代码，做了一点更改，将计算斐波拉契的函数改为了判断num是否为偶数。
+### 修改业务逻辑代码，增加prometheus Exporter
+在示例的基础上，增加了cpu使用率这样一个指标
+```
+//增加一项指标 cpu use ratio
+	CpuUseRatio = prometheus.NewGauge(
+		prometheus.GaugeOpts{
+			Name:      "cpu_use_ratio",
+			Help:      "Current cpu use ratio.",
+	})
+```
+编写函数，调用库函数，获取cpu利用率
+```
+// 调用GetCpuUseRatio获取当前cpu使用率
+func GetCpuUseRatio(){
+	cpuRatio,_ := cpu.Percent(time.Second, false)
+	CpuUseRatio.Set(cpuRatio[0])
+}
+```
+在原业务逻辑main.go中调用函数，获取cpu利用率
+```
+func index(w http.ResponseWriter, r *http.Request) {
+	timer:=metrics.NewAdmissionLatency()
+	metrics.RequestIncrease()
+	//调用函数，得到cpu使用率
+	metrics.GetCpuUseRatio()
+    ...
+}
+```
